@@ -1,3 +1,5 @@
-array = "1,2,3,4,5".split(",")
+require 'pry'
 
-puts array[0]
+new_hash = {_90210: "Beverly Hills, CA", _10001: "New York, NY"}
+
+binding.pry
