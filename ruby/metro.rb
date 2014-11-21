@@ -1,3 +1,5 @@
+#this is a test
+
 def getAllStops(metro)
 	all_stops = []
 	metro.each do |k,v|
@@ -96,8 +98,10 @@ else
 	puts "You're going to have to transfer from #{line_a} to #{line_b} at #{transfer}"
 	leg_a_stops = countStops(dc_metro, line_a, point_a, transfer)
 	leg_b_stops = countStops(dc_metro, line_b, point_b, transfer)
+	total_stops = leg_a_stops + leg_b_stops
+	
 	puts "It's #{leg_a_stops} stop#{leg_a_stops > 1 ? "s" : ""} from #{point_a} to #{transfer} " +
 		 "and #{leg_b_stops} stop#{leg_b_stops > 1 ? "s" : ""} from #{transfer} to #{point_b}"
-	puts "Total stops: #{leg_a_stops + leg_b_stops}"
+	puts "Total stops: #{total_stops}"
 end
 
