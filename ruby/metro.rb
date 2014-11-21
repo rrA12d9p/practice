@@ -1,3 +1,29 @@
+def getAllStops(metro)
+	all_stops = []
+	metro.each do |k,v|
+		all_stops += v
+	end
+	return all_stops.uniq.sort
+end
+
+def listOptions(options)
+	begin
+		i = 1
+		aOptions = options.split("|")
+		aOptions.each do |option|
+			puts "#{i}. #{option}"
+			i += 1
+		end
+		
+		answer = gets.chomp.to_i
+
+		if answer < 1 || answer > i - 1
+			puts "Sorry, that option is unavailable."
+		end
+	end while answer < 1 || answer > i - 1
+	return [answer, aOptions[answer - 1]]
+end
+
 def countStops(metro, line, a, b)
 	return (metro[line].index(b) - metro[line].index(a)).abs
 end
@@ -46,8 +72,13 @@ dc_metro[:turquoise] = turquoise
 dc_metro[:orange] = orange
 
 #main
-point_a = 'Woodley Park'
-point_b = 'Federal Triangle'
+
+all_stops = getAllStops(dc_metro).join("|")
+
+puts "Where would you like to start?"
+point_a = listOptions(all_stops)[1]
+puts "And where would you like to end up?"
+point_b = listOptions(all_stops)[1]
 
 line_a = getLines(dc_metro, point_a)[0]
 line_b = getLines(dc_metro, point_b)[0]
