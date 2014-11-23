@@ -39,4 +39,4 @@ def printTriangle(character, total_rows, backwards = false, full = true)
 	end
 end
 
-printTriangle("#", 10, false, true)
+printTriangle("#", 15, true, false)

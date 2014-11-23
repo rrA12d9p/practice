@@ -1,5 +1,3 @@
-#this is a test
-
 def getAllStops(metro)
 	all_stops = []
 	metro.each do |k,v|
@@ -27,6 +25,7 @@ def listOptions(options)
 end
 
 def countStops(metro, line, a, b)
+	# puts "countStops: #{line}, #{a}, #{b}"
 	return (metro[line].index(b) - metro[line].index(a)).abs
 end
 
@@ -48,25 +47,60 @@ def sameLine(metro, a, b)
 	return !common_lines.empty?
 end
 
-def transferPoint(metro, a, b)
-	if sameLine(metro, a, b)
-		return -1
+def transferPoints(metro, a, b)
+	return [] if sameLine(metro, a, b)
+
+	a_lines = getLines(metro, a)
+	b_lines = getLines(metro, b)
+
+	return [] if a_lines.empty? || b_lines.empty?
+
+	common_stops = []
+
+	a_lines.each do |a_line|
+		b_lines.each do |b_line|
+			puts "#{metro[a_lines]}, #{metro[b_lines]}"
+		end
 	end
 
-	line_a = getLines(metro, a)[0]
-	line_b = getLines(metro, b)[0]
-
-	return -1 if line_a.empty? || line_b.empty?
-
-	common_stops = metro[line_a] & metro[line_b]
-
-	return common_stops.empty? ? -1 : common_stops[0]
-	
+	return common_stops.empty? ? [] : common_stops
 end
 
-red = ['Woodley Park', 'Dupont Circle', 'Farragut North', 'Metro Center', 'Union Station']
-turquoise = ['Crystal City', 'Metro Center', 'Shaw-Howard', 'Beltwater']
-orange = ['Farragut West', 'McPherson Sq', 'Metro Center', 'Federal Triangle', 'Smithsonian', "L'enfant Plaza"]
+def getFewestStops(metro, a, b)
+	a_lines = getLines(metro, a)
+	b_lines = getLines(metro, b)
+
+	stop_counts = []
+	a_lines.each_with_index do |line, i|
+		b_lines.each_with_index do |line, j|
+
+			a_line = a_lines[i]
+			b_line = b_lines[j]
+
+			# puts "getFewestStops: #{metro}, #{a}, #{b}, #{a_lines}, #{b_lines}"
+
+			transfer_stops = transferPoints(metro, a, b)
+
+			if sameLine(metro, a, b)
+				stop_counts << countStops(metro, a_line, a, b)
+			elsif transfer_stops.length >= 1
+				transfer_stops.each do |transfer_stop|
+					leg_a_stops = countStops(metro, a_line, a, transfer_stop)
+					leg_b_stops = countStops(metro, b_line, b, transfer_stop)
+					total_stops = leg_a_stops + leg_b_stops
+
+					stop_counts << total_stops
+				end
+			end
+		end
+	end
+
+	return stop_counts.min
+end
+
+red = ['Woodley Park', 'Trey Station', 'Dupont Circle', 'Farragut North', 'Metro Center', 'Union Station']
+turquoise = ['Crystal City', 'Metro Center', 'Trey Station', 'Shaw-Howard', 'Beltwater']
+orange = ['Farragut West', 'McPherson Sq', 'Metro Center', 'Trey Station', 'Federal Triangle', 'Smithsonian', "L'enfant Plaza"]
 
 dc_metro = {}
 dc_metro[:red] = red
@@ -82,26 +116,14 @@ point_a = listOptions(all_stops)[1]
 puts "And where would you like to end up?"
 point_b = listOptions(all_stops)[1]
 
-line_a = getLines(dc_metro, point_a)[0]
-line_b = getLines(dc_metro, point_b)[0]
-
 puts "You want to go from #{point_a} to #{point_b}? (y/n)"
 verify = gets.chomp.downcase
 
+total_stops = getFewestStops(dc_metro, point_a, point_b)
+
+puts "Total stops: #{total_stops}"
+
 exit if verify != "y"
 
-if sameLine(dc_metro, point_a, point_b)
-	total_stops = countStops(dc_metro, line_a, point_a, point_b)
-	puts "That's #{total_stops} stops away."
-else
-	transfer = transferPoint(dc_metro, point_a, point_b)
-	puts "You're going to have to transfer from #{line_a} to #{line_b} at #{transfer}"
-	leg_a_stops = countStops(dc_metro, line_a, point_a, transfer)
-	leg_b_stops = countStops(dc_metro, line_b, point_b, transfer)
-	total_stops = leg_a_stops + leg_b_stops
-	
-	puts "It's #{leg_a_stops} stop#{leg_a_stops > 1 ? "s" : ""} from #{point_a} to #{transfer} " +
-		 "and #{leg_b_stops} stop#{leg_b_stops > 1 ? "s" : ""} from #{transfer} to #{point_b}"
-	puts "Total stops: #{total_stops}"
-end
+
 
