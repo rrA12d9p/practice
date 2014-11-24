@@ -1,4 +1,4 @@
-# require "pry"
+require 'colorize'
 
 class Card
   RANKS = %w(2 3 4 5 6 7 8 9 10 J Q K A)
@@ -13,7 +13,15 @@ class Card
   attr_reader :rank, :suit, :value
  
   def to_s
-    "#{@rank}#{@suit}"
+  	if suit == 'c'
+    	"#{@rank}#{@suit}".green
+    elsif suit == 'd'
+    	"#{@rank}#{@suit}".blue
+    elsif suit == 'h'
+    	"#{@rank}#{@suit}".red
+    else
+    	"#{@rank}#{@suit}".yellow
+  	end
   end
 end
 
@@ -44,27 +52,22 @@ class Deck
   end
 end
 
-class Player
-	def initialize(name, hand)
-		@name = name
-		@hand = hand
-	end
-
-	attr_reader :name, :hand
-end
-
-class Hand
+class Hand < Array
 
 	def initialize(cards)
 		@hand = cards
 		sort_by_value
 	end
 
+	def values
+		return @hand.collect {|card| card.value}
+	end
+
 	def pair_count_hash
 		pair_hash = @hand.group_by {|card| card.rank}
 		pair_count_hash_array = []
 		pair_hash.each do |k, v|
-			pair_count_hash_array << {card: k, quantity: v.length}
+			pair_count_hash_array << {card: k, quantity: v.length, value: Card::RANKS.index(k) + 2}
 		end
 		pair_count_hash_array.sort { |a,b| b[:quantity] <=> a[:quantity] }
 	end
@@ -111,45 +114,26 @@ class Hand
 	end
 
 	def score_class
-		score_class = {
-			royal_flush: false,
-			straight_flush: false,
-			four_of_a_kind: false,
-			full_house: false,
-			flush: false,
-			straight: false,
-			three_of_a_kind: false,
-			two_pair: false,
-			one_pair: false,
-			high_card: false
-		}
-
 		if is_straight && is_flush && @hand[0].rank == 'A'
-			score_class[:royal_flush] = true
+			return :royal_flush
 		elsif is_straight && is_flush
-			score_class[:straight_flush] == true
+			return :straight_flush
 		elsif pair_count_hash[0][:quantity] == 4
-			score_class[:four_of_a_kind] = true
+			return :four_of_a_kind
 		elsif pair_count_hash[0][:quantity] == 3 && pair_count_hash[1][:quantity] == 2
-			score_class[:full_house] = true
+			return :full_house
 		elsif is_flush
-			score_class[:flush] = true
+			return :flush
 		elsif is_straight
-			score_class[:straight] = true
+			return :straight
 		elsif pair_count_hash[0][:quantity] == 3
-			score_class[:three_of_a_kind] = true
+			return :three_of_a_kind
 		elsif pair_count_hash[0][:quantity] == 2 && pair_count_hash[1][:quantity] == 2
-			score_class[:two_pair] = true
+			return :two_pair
 		elsif pair_count_hash[0][:quantity] == 2
-			score_class[:one_pair] = true
+			return :one_pair
 		else
-			score_class[:high_card] = true
-		end
-			
-		score_class.each do |k, v|
-			if v == true
-				return k
-			end
+			return :high_card
 		end
 	end
 
@@ -159,6 +143,20 @@ class Hand
 
 	attr_reader :suit_hash, :num_suits, :num_pairs, :pair_hash
 
+end
+
+class Player
+
+	def initialize(name, hand)
+		@name = name
+		@hand = hand
+		@score_class_order = [:royal_flush, :straight_flush, :four_of_a_kind, :full_house, :flush, :straight, :three_of_a_kind, :two_pair, :one_pair, :high_card]
+		@hand_class = hand.score_class
+		@hand_class_s = hand.score_class.to_s.gsub('_',' ').capitalize
+		@hand_class_rank = @score_class_order.index(@hand_class)
+	end
+
+	attr_reader :name, :hand, :hand_class, :hand_class_rank, :hand_class_s
 end
 
 class Game
@@ -178,10 +176,187 @@ class Game
 		@players << player
 	end
 
-	def winner
+	def compare_hands(players)
+		winners = []
 		players.each do |player|
-			#group players by hand score
-		end
+			if winners.length == 0
+				winners << player
+			elsif player.hand_class_rank < winners[-1].hand_class_rank
+				# better hand class rank than current winner(s)
+				winners = [player]
+			elsif player.hand_class_rank == winners[-1].hand_class_rank
+				# same hand class rank (e.g. full house) as current winner(s)
+				case player.hand_class
+					when :royal_flush
+						winners << player
+					when :straight_flush
+						player_a_high_card = winners[-1].hand[0].value
+						player_b_high_card = player.hand[0].value
+						if player_b_high_card > player_a_high_card
+							winners = [player]
+						elsif player_b_high_card == player_a_high_card
+							winners << player
+						end
+					when :four_of_a_kind
+						player_a_pair_card = winners[-1].hand.pair_count_hash[0][:value]
+						player_b_pair_card = player.hand.pair_count_hash[0][:value]
+
+						if player_b_pair_card > player_a_pair_card
+							winners = [player]
+						else
+							player_a_kicker = winners[-1].hand.pair_count_hash_array[-1][:value]
+							player_b_kicker= player.hand.pair_count_hash_array[-1][:value]
+							if player_b_high_card > player_a_high_card
+								winners = [player]
+							elsif player_b_high_card == player_a_high_card
+								winners << player
+							end
+						end
+					when :full_house
+						player_a_trip_card = winners[-1].hand.pair_count_hash[0][:value]
+						player_b_trip_card = player.hand.pair_count_hash[0][:value]
+
+						if player_b_trip_card > player_a_trip_card
+							winners = [player]
+							# only condition necessary, as two players can't have the same trip card
+							# (i.e. AAAKK vs AAAKK is impossible)
+						end
+					when :flush
+						player_a_hand_values = winners[-1].hand.values
+						player_b_hand_values = player.hand.values
+
+						# check if the hands are identical except for suit
+						if player_a_hand_values == player_b_hand_values
+							winners << player
+							next
+						end
+
+						player.hand.each_with_index do |card, i|
+							if card.value > winners[-1].hand[i].value
+								winners = [player]
+								break
+							else
+							end
+						end
+
+
+					when :straight
+						player_a_high_card = winners[-1].hand[0].value
+						player_b_high_card = player.hand[0].value
+						if player_b_high_card > player_a_high_card
+							winners = [player]
+						elsif player_b_high_card == player_a_high_card
+							winners << player
+						end
+					when :three_of_a_kind
+						player_a_hand_values = winners[-1].hand.values
+						player_b_hand_values = player.hand.values
+
+						# check if the hands are identical except for suit
+						if player_a_hand_values == player_b_hand_values
+							winners << player
+							next
+						end
+
+						player_a_pair_card = winners[-1].hand.pair_count_hash[0][:value]
+						player_b_pair_card = player.hand.pair_count_hash[0][:value]
+
+						if player_b_pair_card > player_a_pair_card
+							winners = [player]
+						elsif player_b_pair_card == player_a_pair_card
+							player.hand.each_with_index do |card, i|
+								if card.value > winners[-1].hand[i].value
+									winners = [player]
+									break
+								else
+								end
+							end
+						else
+						end
+					when :two_pair
+						player_a_hand_values = winners[-1].hand.values
+						player_b_hand_values = player.hand.values
+
+						# check if the hands are identical except for suit
+						if player_a_hand_values == player_b_hand_values
+							winners << player
+							next
+						end
+
+						player_a_pair_card_one = winners[-1].hand.pair_count_hash[0][:value]
+						player_b_pair_card_one = player.hand.pair_count_hash[0][:value]
+
+						player_a_pair_card_two = winners[-1].hand.pair_count_hash_array[1][:value]
+						player_b_pair_card_two = player.hand.pair_count_hash_array[1][:value]
+
+						if player_b_pair_card_one > player_a_pair_card_one
+							winners = [player]
+						elsif player_b_pair_card_one == player_a_pair_card_one
+							if player_b_pair_card_two > player_a_pair_card_two
+								winner = [player]
+							elsif player_b_pair_card_two == player_a_pair_card_two
+								player.hand.each_with_index do |card, i|
+									if card.value > winners[-1].hand[i].value
+										winners = [player]
+										break
+									else
+									end
+								end
+
+							else
+							end
+						else
+						end
+					when :one_pair
+						player_a_hand_values = winners[-1].hand.values
+						player_b_hand_values = player.hand.values
+
+						# check if the hands are identical except for suit
+						if player_a_hand_values == player_b_hand_values
+							winners << player
+							next
+						end
+
+						player_a_pair_card = winners[-1].hand.pair_count_hash[0][:value]
+						player_b_pair_card = player.hand.pair_count_hash[0][:value]
+
+						if player_b_pair_card > player_a_pair_card
+							winners = [player]
+						elsif player_b_pair_card == player_a_pair_card
+							player.hand.each_with_index do |card, i|
+								if card.value > winners[-1].hand[i].value
+									winners = [player]
+									break
+								else
+								end
+							end
+
+						else
+						end
+					when :high_card
+						player_a_hand_values = winners[-1].hand.values
+						player_b_hand_values = player.hand.values
+
+						# check if the hands are identical except for suit
+						if player_a_hand_values == player_b_hand_values
+							winners << player
+							next
+						end
+
+						player.hand.each_with_index do |card, i|
+							if card.value > winners[-1].hand[i].value
+								winners = [player]
+								break
+							else
+							end
+						end
+				end
+				
+			else
+			end
+		end	
+
+		return winners
 	end
 
 	attr_accessor :name, :players, :winners, :winning_score
@@ -190,7 +365,7 @@ end
 poker = Game.new("Poker")
 deck = Deck.new
 
-# hand = Hand.new([Card.new('A', 's'), Card.new('2', 's'), Card.new('2', 'h'), Card.new('4', 's'), Card.new('5', 'h')])
+# hand = Hand.new([Card.new('A', 's'), Card.new('2', 's'), Card.new('9', 's'), Card.new('4', 's'), Card.new('5', 's')])
 # new_player = Player.new("Trey", hand)
 # poker.add_player(new_player)
 
@@ -207,15 +382,18 @@ while true
 		break
 	else
 		hand = Hand.new(deck.deal(5))
+
 		new_player = Player.new(name, hand)
 		poker.add_player(new_player)
 	end
 end
 
 poker.players.each do |player|
-	puts "================="
-	puts "#{player.name}: #{player.hand.to_s}"
-	puts "Score: #{player.hand.score_class}"
+	puts "#{player.name}: #{player.hand.to_s} (#{player.hand_class_s})"
 end
 
-# binding.pry
+winners = poker.compare_hands(poker.players)
+
+winner_names = winners.collect {|player| player.name}
+
+puts "Winner#{winners.length > 1 ? "s" : ""}: #{winner_names.join(", ")}"
