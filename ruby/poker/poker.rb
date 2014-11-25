@@ -147,16 +147,25 @@ end
 
 class Player
 
-	def initialize(name, hand)
+	def initialize(name, hand, chips)
 		@name = name
 		@hand = hand
+		@chips = chips
 		@score_class_order = [:royal_flush, :straight_flush, :four_of_a_kind, :full_house, :flush, :straight, :three_of_a_kind, :two_pair, :one_pair, :high_card]
 		@hand_class = hand.score_class
 		@hand_class_s = hand.score_class.to_s.gsub('_',' ').capitalize
 		@hand_class_rank = @score_class_order.index(@hand_class)
 	end
 
-	attr_reader :name, :hand, :hand_class, :hand_class_rank, :hand_class_s
+	def bet(chips)
+		@chips -= chips
+	end
+
+	def add_chips(chips)
+		@chips += chips
+	end
+
+	attr_reader :name, :hand, :hand_class, :hand_class_rank, :hand_class_s, :chips
 end
 
 class Game
@@ -167,6 +176,7 @@ class Game
 
 	def initialize(name)
 		@name = name
+		@pot = 0
 		@players = []
 		@winners = []
 		@winning_score = 0
@@ -174,6 +184,20 @@ class Game
 
 	def add_player(player)
 		@players << player
+	end
+
+	def remove_player(player)
+		@players.delete(player)
+	end
+
+	def add_to_pot(chips)
+		@pot += chips
+		return chips
+	end
+
+	def remove_from_pot(chips)
+		@pot -= chips
+		return chips
 	end
 
 	def compare_hands(players)
@@ -359,15 +383,12 @@ class Game
 		return winners
 	end
 
-	attr_accessor :name, :players, :winners, :winning_score
+	attr_accessor :name, :players, :winners, :winning_score, :pot
 end
 
 poker = Game.new("Poker")
 deck = Deck.new
 
-# hand = Hand.new([Card.new('A', 's'), Card.new('2', 's'), Card.new('9', 's'), Card.new('4', 's'), Card.new('5', 's')])
-# new_player = Player.new("Trey", hand)
-# poker.add_player(new_player)
 
 while true
 	if poker.player_count == 0
@@ -383,17 +404,65 @@ while true
 	else
 		hand = Hand.new(deck.deal(5))
 
-		new_player = Player.new(name, hand)
+		new_player = Player.new(name, hand, 1000)
 		poker.add_player(new_player)
 	end
 end
 
-poker.players.each do |player|
-	puts "#{player.name}: #{player.hand.to_s} (#{player.hand_class_s})"
+	while true
+
+	bet = []
+	poker.players.each do |player|
+		begin loop
+			puts "#{player.name} (#{player.chips.to_s.green}): How many chips would you like to bet?"
+			chips = gets.chomp.to_i
+		end while chips > player.chips || chips < 0
+
+		bet << chips
+	end
+
+	poker.players.each do |player|
+		player.bet(bet.min)
+		poker.add_to_pot(bet.min)
+	end
+
+	puts "Total pot: #{poker.pot.to_s.green}"
+
+	poker.players.each do |player|
+		puts "#{player.name}: #{player.hand.to_s} (#{player.hand_class_s})"
+	end
+
+	winners = poker.compare_hands(poker.players)
+
+	winner_names = winners.collect {|player| player.name}
+
+	puts "Winner#{winners.length > 1 ? "s" : ""}: #{winner_names.join(", ")}"
+
+	winners.each do |winner|
+		share = poker.remove_from_pot(poker.pot / winners.length)
+		puts "#{winner.name} wins #{share.to_s.green}!"
+		winner.add_chips(share)
+		poker.pot = 0
+	end
+
+	poker.players.each do |player|
+		if player.chips == 0
+			puts "#{player.name} was eliminated."
+			poker.remove_player(player)
+		end
+	end
+
+	if poker.players.length == 1
+		puts "Game over. #{poker.players[0].name} wins with #{poker.players[0].chips.to_s.green}!"
+		break
+	else
+		puts "Play again? (y/n)"
+		play_again = gets.chomp.downcase
+
+		if play_again == 'y'
+			#play again
+		else
+			break
+		end
+	end
 end
-
-winners = poker.compare_hands(poker.players)
-
-winner_names = winners.collect {|player| player.name}
-
-puts "Winner#{winners.length > 1 ? "s" : ""}: #{winner_names.join(", ")}"

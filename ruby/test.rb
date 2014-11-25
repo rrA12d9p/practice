@@ -1,20 +1,14 @@
-def listOptions(options)
-	begin
-		i = 1
-		aOptions = options.split("|")
-		aOptions.each do |option|
-			puts "#{i}. #{option}"
-			i += 1
-		end
-		
-		answer = gets.chomp.to_i
+# student class
+class Student
+	def initialize(name)
+		@name = name
+	end
 
-		if answer < 1 || answer > i - 1
-			puts "Sorry, that option is unavailable."
-		end
-	end while answer < 1 || answer > i - 1
-	return [answer, aOptions[answer - 1]]
+	def says_hello
+		return "Hi, my name's #{@name}"
+	end
 end
 
-choice = listOptions("option 1|option 2|option 3")
-puts "You picked #{choice[1]}"
+trey = Student.new("Trey")
+
+puts trey.says_hello
