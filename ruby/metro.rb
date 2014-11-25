@@ -1,4 +1,4 @@
-def listOptions(options)
+def list_options(options)
 	begin
 		i = 1
 		options.each do |option|
@@ -80,10 +80,10 @@ dc_metro.add_line(orange_line)
 # Main
 while 1
 	puts "Origin:"
-	point_a = listOptions(dc_metro.list_all_stops)
+	point_a = list_options(dc_metro.list_all_stops)
 	
 	puts "Destination:"
-	point_b = listOptions(dc_metro.list_all_stops)
+	point_b = list_options(dc_metro.list_all_stops)
 	
 	puts "You want to go from #{point_a[1]} to #{point_b[1]}? (y/n)"
 	yn = gets.chomp.downcase
