@@ -1,17 +1,8 @@
-def getAllStops(metro)
-	all_stops = []
-	metro.each do |k,v|
-		all_stops += v
-	end
-	return all_stops.uniq.sort
-end
-
 def listOptions(options)
 	begin
 		i = 1
-		aOptions = options.split("|")
-		aOptions.each do |option|
-			puts "#{i}. #{option}"
+		options.each do |option|
+			puts "#{i}.	#{option}"
 			i += 1
 		end
 		
@@ -21,109 +12,83 @@ def listOptions(options)
 			puts "Sorry, that option is unavailable."
 		end
 	end while answer < 1 || answer > i - 1
-	return [answer, aOptions[answer - 1]]
+	return [answer, options[answer - 1]]
 end
 
-def countStops(metro, line, a, b)
-	# puts "countStops: #{line}, #{a}, #{b}"
-	return (metro[line].index(b) - metro[line].index(a)).abs
-end
+class Metro
+	attr_reader :name, :lines
 
-def getLines(metro, stop)
-	lines = []
-	metro.each do |key,value|
-		if value.include?(stop)
-			lines << key
-		end
-	end
-	return lines
-end
-
-def sameLine(metro, a, b)
-	start_line = getLines(metro, a)
-	end_line = getLines(metro, b)
-	common_lines = start_line & end_line
-
-	return !common_lines.empty?
-end
-
-def transferPoints(metro, a, b)
-	return [] if sameLine(metro, a, b)
-
-	a_lines = getLines(metro, a)
-	b_lines = getLines(metro, b)
-
-	return [] if a_lines.empty? || b_lines.empty?
-
-	common_stops = []
-
-	a_lines.each do |a_line|
-		b_lines.each do |b_line|
-			puts "#{metro[a_lines]}, #{metro[b_lines]}"
-		end
+	def initialize(name)
+		@name = name
+		@lines = []
 	end
 
-	return common_stops.empty? ? [] : common_stops
-end
-
-def getFewestStops(metro, a, b)
-	a_lines = getLines(metro, a)
-	b_lines = getLines(metro, b)
-
-	stop_counts = []
-	a_lines.each_with_index do |line, i|
-		b_lines.each_with_index do |line, j|
-
-			a_line = a_lines[i]
-			b_line = b_lines[j]
-
-			# puts "getFewestStops: #{metro}, #{a}, #{b}, #{a_lines}, #{b_lines}"
-
-			transfer_stops = transferPoints(metro, a, b)
-
-			if sameLine(metro, a, b)
-				stop_counts << countStops(metro, a_line, a, b)
-			elsif transfer_stops.length >= 1
-				transfer_stops.each do |transfer_stop|
-					leg_a_stops = countStops(metro, a_line, a, transfer_stop)
-					leg_b_stops = countStops(metro, b_line, b, transfer_stop)
-					total_stops = leg_a_stops + leg_b_stops
-
-					stop_counts << total_stops
-				end
-			end
-		end
+	# add a line object to our lines array
+	def add_line(line)
+		@lines << line
 	end
 
-	return stop_counts.min
+	# remove a line object from our lines array
+	def remove_line(line)
+		@lines.delete(line)
+	end
+
+	# returns an array of all lines a stop is on
+	def get_lines(stop)
+		lines = []
+		@lines.each do |line|
+			lines << line if line.stops.include?(stop)
+		end
+		return lines
+	end
+
+	# list all stops across all lines
+	# pass false to show with duplicates
+	def list_all_stops(unique = true)
+		all_stops = @lines.map {|l| l.stops}.flatten.uniq
+		return unique ? all_stops.uniq : all_stops
+	end
+
+	# return an array of stops that exist on multiple lines
+	def all_transfer_stations
+		# get all stops with repeats to determine which stops exist on multiple lines
+		all_stops = list_all_stops(false)
+
+		transfer_stations = all_stops.group_by { |e| e }.select { |k, v| v.size > 1 }.map(&:first)
+		return transfer_stations
+	end
 end
 
-red = ['Woodley Park', 'Trey Station', 'Dupont Circle', 'Farragut North', 'Metro Center', 'Union Station']
-turquoise = ['Crystal City', 'Metro Center', 'Trey Station', 'Shaw-Howard', 'Beltwater']
-orange = ['Farragut West', 'McPherson Sq', 'Metro Center', 'Trey Station', 'Federal Triangle', 'Smithsonian', "L'enfant Plaza"]
+class Line
+	attr_reader :name, :stops
+	def initialize(name, stops)
+		@name = name
+		@stops = stops
+	end
+end
 
-dc_metro = {}
-dc_metro[:red] = red
-dc_metro[:turquoise] = turquoise
-dc_metro[:orange] = orange
+red_line = Line.new("Red Line", ['Woodley Park', 'Trey Station', 'Dupont Circle', 'Farragut North', 'Metro Center', 'Union Station'])
+turquoise_line = Line.new("Turquoise Line", ['Crystal City', 'Metro Center', 'Trey Station', 'Shaw-Howard', 'Beltwater'])
+orange_line = Line.new("Orange Line", ['Farragut West', 'McPherson Sq', 'Metro Center', 'Trey Station', 'Federal Triangle', 'Smithsonian', "L'enfant Plaza"])
 
-#main
+dc_metro = Metro.new("DC Metro")
 
-all_stops = getAllStops(dc_metro).join("|")
+dc_metro.add_line(red_line)
+dc_metro.add_line(turquoise_line)
+dc_metro.add_line(orange_line)
 
-puts "Where would you like to start?"
-point_a = listOptions(all_stops)[1]
-puts "And where would you like to end up?"
-point_b = listOptions(all_stops)[1]
+# Main
+while 1
+	puts "Origin:"
+	point_a = listOptions(dc_metro.list_all_stops)
+	
+	puts "Destination:"
+	point_b = listOptions(dc_metro.list_all_stops)
+	
+	puts "You want to go from #{point_a[1]} to #{point_b[1]}? (y/n)"
+	yn = gets.chomp.downcase
+	next if yn != "y"
 
-puts "You want to go from #{point_a} to #{point_b}? (y/n)"
-verify = gets.chomp.downcase
-
-total_stops = getFewestStops(dc_metro, point_a, point_b)
-
-puts "Total stops: #{total_stops}"
-
-exit if verify != "y"
-
-
-
+	puts "Point A is on lines: #{dc_metro.get_lines(point_a[1])}"
+	puts "Point B is on lines: #{dc_metro.get_lines(point_b[1])}"
+end
