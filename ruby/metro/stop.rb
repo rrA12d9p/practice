@@ -1,13 +1,19 @@
 class Stop
-	attr_accessor :name, :lines
+	attr_accessor :name, :lines, :connected
 
 	def initialize(name)
 		@name = name
 		@lines = []
+		@connected = []
 	end
 
 	def add_line(line)
 		@lines << line
+	end
+
+	def add_connected(stop)
+		@connected << stop
+		@connected.uniq!
 	end
 
 	def line_names

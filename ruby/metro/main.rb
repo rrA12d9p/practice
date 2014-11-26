@@ -33,6 +33,23 @@ metro_lines.each do |line|
 	end
 end
 
+# loop through line stops
+# look up object by name
+# add adjacent stops
+metro_lines.each do |line|
+	line.stops.each_with_index do |stop_name, position|
+		stop = dc_metro.stop_by_name(stop_name)
+		if position != 0
+			left = dc_metro.stop_by_name(line.stops[position-1])
+			stop.add_connected(left)
+		end
+		if position != line.stops.length - 1
+			right = dc_metro.stop_by_name(line.stops[position+1])		
+			stop.add_connected(right)
+		end
+	end
+end
+
 # model <-
 
 def list_options(options)
