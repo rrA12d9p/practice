@@ -24,16 +24,16 @@ class Apartment
 	end
 
 	def view_details
-		puts "================================"
+		puts "================================".blue
 		puts "Apartment Details for #{@name}"
-		puts "--------------------------------"
-		puts "Name: #{@name.to_s.red} "
-		puts "Address: #{@address.to_s.red}"
-		puts "Sqft: #{@sqft.to_s.red}"
-		puts "Beds: #{@num_beds.to_s.red}"
-		puts "Baths: #{@num_baths.to_s.red}"
+		puts "--------------------------------".blue
+		puts "Name: #{@name.to_s.yellow} "
+		puts "Address: #{@address.to_s.yellow}"
+		puts "Sqft: #{@sqft.to_s.yellow}"
+		puts "Beds: #{@num_beds.to_s.yellow}"
+		puts "Baths: #{@num_baths.to_s.yellow}"
 
 		renter_names = @renters.map {|renter| renter.name }
-		puts "Renters: " + renter_names.join(", ").to_s.red
+		puts "Renters: " + renter_names.join(", ").to_s.yellow
 	end
 end

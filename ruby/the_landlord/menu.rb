@@ -1,5 +1,7 @@
 require 'colorize'
 
+DIVIDER = "================================".blue
+
 class Menu
 	attr_reader :name
 	attr_accessor :options
@@ -22,7 +24,7 @@ class Menu
 	def list_options(title = "")
 		return if @options.length == 0
 
-		puts "================================"
+		puts DIVIDER
 
 		puts title if title.length > 0
 
@@ -33,13 +35,13 @@ class Menu
 				i += 1
 			end
 
-			puts "================================"
+			puts DIVIDER
 			
 			answer = gets.chomp.to_i
 
 			if answer < 1 || answer > i - 1
 				puts "Sorry, that option is unavailable."
-				puts "================================"
+				puts DIVIDER
 			end
 		end while answer < 1 || answer > i - 1
 		return [answer, @options[answer - 1]]

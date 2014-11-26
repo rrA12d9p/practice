@@ -60,7 +60,7 @@ while true
 			#list all apartments
 			options = apartment_names << "Go back"
 
-			select_apartment_menu.options = options
+			select_apartment_menu.add_options(options)
 			selected = select_apartment_menu.list_options
 			next if selected[1] == "Go back"
 
@@ -86,6 +86,7 @@ while true
 						# evict a tenant
 						tenants_list = apartment.renters
 						tenants_names_list = tenants_list.map {|tenant| tenant.name}
+
 						evict_tenant_menu_options = tenants_names_list << "Go back"
 						evict_tenant_menu = Menu.new("Evict a Tenant")
 						evict_tenant_menu.add_options(evict_tenant_menu_options)
@@ -110,7 +111,9 @@ while true
 			#remove apartment
 			puts "Which apartment would you like to remove?"
 			options = apartment_names << "Go back"
-			select_apartment_menu.options = options
+
+			select_apartment_menu.add_options(options)
+
 			selected = select_apartment_menu.list_options
 			next if selected[1] == "Go back"
 
