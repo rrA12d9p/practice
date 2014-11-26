@@ -3,8 +3,8 @@ require_relative 'line.rb'
 require_relative 'stop.rb'
 
 # model	->
-red_line = Line.new("Red Line", ['Woodley Park', 'Trey Station', 'Dupont Circle', 'Farragut North', 'Metro Center', 'Union Station'])
-turquoise_line = Line.new("Turquoise Line", ['Crystal City', 'Metro Center', 'Trey Station', 'Shaw-Howard', 'Beltwater'])
+red_line = Line.new("Red Line", ['Woodley Park', 'Trey Station', 'Dupont Circle', 'Random Transfer', 'Farragut North', 'Metro Center', 'Union Station'])
+turquoise_line = Line.new("Turquoise Line", ['Crystal City', 'Random Transfer', 'Metro Center', 'Trey Station', 'Shaw-Howard', 'Beltwater'])
 orange_line = Line.new("Orange Line", ['Farragut West', 'McPherson Sq', 'Metro Center', 'Trey Station', 'Federal Triangle', 'Smithsonian', "L'enfant Plaza"])
 
 metro_lines = [red_line, turquoise_line, orange_line]
