@@ -54,13 +54,13 @@ apartment_menu.add_options(apartment_menu_options)
 while true
 	selected = main_menu.list_options
 	apartment_names = all_apartments.map {|apt| apt.name}
+	options = apartment_names
 	
 	case selected[1]
 		when "Select apartment"
 			#list all apartments
-			options = apartment_names << "Go back"
 
-			select_apartment_menu.add_options(options)
+			select_apartment_menu.options = apartment_names << "Go back"
 			selected = select_apartment_menu.list_options
 			next if selected[1] == "Go back"
 
@@ -110,9 +110,9 @@ while true
 		when "Remove apartment"
 			#remove apartment
 			puts "Which apartment would you like to remove?"
-			options = apartment_names << "Go back"
+			options =  all_apartments.map {|apt| apt.name}
 
-			select_apartment_menu.add_options(options)
+			select_apartment_menu.options = apartment_names << "Go back"
 
 			selected = select_apartment_menu.list_options
 			next if selected[1] == "Go back"
