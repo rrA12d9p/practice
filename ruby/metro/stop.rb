@@ -20,7 +20,7 @@ class Stop
 
 	def same_line?(stop)
 		common_lines = @lines & stop.lines
-		return common_lines == nil ? 0 : common_lines.length > 0
+		return common_lines == nil ? false : common_lines.length > 0
 	end
 
 	def direct_transfers_to(metro, stop)
@@ -46,10 +46,27 @@ class Stop
 		stops = []
 
 		if self.same_line?(stop)
-			line = @lines[0]
-			a_pos = line.stop_position(self)
-			b_pos = line.stop_position(stop)
-			stops << (b_pos - a_pos).abs
+			a_lines = @lines
+			b_lines = stop.lines
+
+			a_lines.each do |a_line|
+				b_lines.each do |b_line|
+
+					# next if either stop isn't on the other's line
+					next if !a_line.stops.include?(stop.name) || !b_line.stops.include?(self.name)
+
+					a_pos = a_line.stop_position(self)
+					b_pos = b_line.stop_position(stop)
+
+					stop_count = (b_pos - a_pos).abs
+
+					next if stop_count == 0
+
+					stops << stop_count
+
+					puts "#{self.name} direct to #{stop.name} (#{stop_count})"
+				end
+			end
 		else
 			direct_transfers = self.direct_transfers_to(metro, stop)
 			
@@ -61,8 +78,6 @@ class Stop
 				b_lines.each do |b_line|
 					direct_transfers.each do |transfer|
 
-						next if direct_transfers.length == 0
-
 						a_pos = a_line.stop_position(self)
 						a_t_pos = a_line.stop_position(transfer)
 						b_t_pos = b_line.stop_position(transfer)
@@ -70,8 +85,11 @@ class Stop
 
 						a_leg = (a_pos - a_t_pos).abs
 						b_leg = (b_t_pos - b_pos).abs
+						stop_count = (a_leg + b_leg).abs
 
-						stops << (a_leg + b_leg).abs
+						stops << stop_count
+
+						puts "#{self.name} to #{stop.name} via #{transfer.name} (#{stop_count})"
 
 					end
 				end
