@@ -2,6 +2,7 @@ require 'csv'
 require_relative 'metro.rb'
 require_relative 'line.rb'
 require_relative 'station.rb'
+require_relative 'trip.rb'
 
 # model	->
 dc_metro = Metro.new("DC Metro")
@@ -175,10 +176,21 @@ dc_metro.lines.each do |line|
 	end
 end
 
-orig = dc_metro.stop_by_name("Clarendon")
-dest = dc_metro.stop_by_name("Gallery Place")
+orig = dc_metro.stop_by_name("East Falls Church")
+dest = dc_metro.stop_by_name("Arlington Cemetery")
 
-dc_metro.shortest_path(orig, dest)
+trip = Trip.new(orig, dest)
+
+# shortest_path = trip.shortest_path(orig, dest)
+# path_stop_names = shortest_path.map {|stop| stop.name}
+# puts path_stop_names
+
+trip.map_paths(orig, dest)
+
+trip.successful_paths.each do |path|
+	puts "#{path.length} stops"
+	puts "#{path.map{|station| station.name}}"
+end
 
 exit
 
