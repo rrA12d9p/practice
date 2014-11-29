@@ -12,6 +12,14 @@ class Metro
 		@lines << line
 	end
 
+	def shortest_path(orig, dest)
+		if orig.distance_to(dest) > 0
+			c = orig.closest_connection_to(dest)
+			puts c.name
+			return shortest_path(c, dest)
+		end
+	end
+
 	def add_stop(stop)
 		@stops << stop
 	end
@@ -26,6 +34,8 @@ class Metro
 		index = all_stop_names.index(stop_name)
 		return @stops[index]
 	end
+
+
 
 	# remove a line object from our lines array
 	def remove_line(line)

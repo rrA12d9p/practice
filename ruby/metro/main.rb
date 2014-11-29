@@ -176,10 +176,9 @@ dc_metro.lines.each do |line|
 end
 
 orig = dc_metro.stop_by_name("Clarendon")
-dest = dc_metro.stop_by_name("New Carrollton")
+dest = dc_metro.stop_by_name("Gallery Place")
 
-# this is the next stop we should take toward our destination
-puts orig.closest_connection_to(dest).name
+dc_metro.shortest_path(orig, dest)
 
 exit
 

@@ -18,11 +18,11 @@ class Station
 		@silver_pos = 0
 	end
 
-	def closest_connection_to(orig, dest)
-		distances = orig.connected.map {|c| c.distance_to(dest)}
+	def closest_connection_to(dest)
+		distances = self.connected.map {|c| c.distance_to(dest)}
 		c_index = distances.index(distances.min)
 
-		return orig.connected[c_index]
+		return self.connected[c_index]
 	end
 
 	# return the distance between stations in km
