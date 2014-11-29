@@ -1,10 +1,42 @@
-class Stop
-	attr_accessor :name, :lines, :connected
+class Station
+	attr_accessor :name, :lines, :connected, :lat, :lng
+	attr_accessor :orange_pos, :blue_pos, :red_pos, :green_pos, :yellow_pos, :silver_pos
 
-	def initialize(name)
+	def initialize(name, lat, lng)
 		@name = name
 		@lines = []
 		@connected = []
+		
+		@lat = lat
+		@lng = lng
+		
+		@orange_pos = 0
+		@blue_pos = 0
+		@red_pos = 0
+		@green_pos = 0
+		@yellow_pos = 0
+		@silver_pos = 0
+	end
+
+	# return the distance between stations in km
+	def distance_to(station)
+		a_lat = @lat
+		a_lng = @lng
+
+		b_lat = station.lat
+		b_lng = station.lng
+
+		earth_radius = 6371 # kilometers
+		d_lat = (b_lat-a_lat) * Math::PI / 180 
+		d_lng = (b_lng-a_lng) * Math::PI / 180 
+		a = Math::sin(d_lat/2) * Math::sin(d_lat/2) +
+				Math::cos((a_lat) * Math::PI / 180 ) * Math::cos((b_lat) * Math::PI / 180 ) *
+				Math::sin(d_lng/2) * Math::sin(d_lng/2)
+		c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1-a))
+		dist = earth_radius * c
+
+    return dist;
+
 	end
 
 	def add_line(line)

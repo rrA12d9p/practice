@@ -13,7 +13,12 @@ class Metro
 	end
 
 	def add_stop(stop)
-		@stop << stop
+		@stops << stop
+	end
+
+	def stop_by_line_pos(line_obj, pos)
+		stop_obj = lines.select {|line| line == line_obj}[0].stops[pos]
+		return stop_obj
 	end
 
 	def stop_by_name(stop_name)

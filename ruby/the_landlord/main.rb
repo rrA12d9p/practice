@@ -50,7 +50,6 @@ apartment_menu_options = ["View apartment details",
 main_menu.add_options(main_menu_options)
 apartment_menu.add_options(apartment_menu_options)
 
-
 while true
 	selected = main_menu.list_options
 	apartment_names = all_apartments.map {|apt| apt.name}

@@ -1,54 +1,191 @@
+require 'csv'
 require_relative 'metro.rb'
 require_relative 'line.rb'
-require_relative 'stop.rb'
+require_relative 'station.rb'
 
 # model	->
-red_line = Line.new("Red Line", ['Woodley Park', 'Trey Station', 'Dupont Circle', 'Random Transfer', 'Farragut North', 'Metro Center', 'Union Station'])
-turquoise_line = Line.new("Turquoise Line", ['Crystal City', 'Random Transfer', 'Metro Center', 'Trey Station', 'Shaw-Howard', 'Beltwater'])
-orange_line = Line.new("Orange Line", ['Farragut West', 'McPherson Sq', 'Metro Center', 'Trey Station', 'Federal Triangle', 'Smithsonian', "L'enfant Plaza"])
-
-metro_lines = [red_line, turquoise_line, orange_line]
-
 dc_metro = Metro.new("DC Metro")
 
-metro_lines.each do |line|
+CSV.read("DC_Metro_Stops.csv").each_with_index do |row, i|
+		next if i == 0 # skip headers
+  	name = row[0].to_s
+  	lat = row[1].to_f
+  	lng = row[2].to_f
+  	orange = row[3].to_i
+  	blue = row[4].to_i
+  	red = row[5].to_i
+  	green = row[6].to_i
+  	yellow = row[7].to_i
+  	silver = row[8].to_i
 
-	dc_metro.add_line(line)
+  	lines = []
 
-	line.stops.each_with_index do |stop_name, position|
-		created_stop_names = dc_metro.stops.map {|stop| stop.name}
-		stop_position = line.stops.index(stop_name)
+  	new_station = Station.new(name, lat, lng)
 
-		if created_stop_names.include?(stop_name)
-			# this stop already created/tagged by another metro line; need to tag it with this metro line too
-			i = created_stop_names.index(stop_name)
-			stop = dc_metro.stops[i]
-			stop.add_line(line)
-		else
-			# this stop doesn't exist yet; need to create/tag it
-			stop = Stop.new(stop_name)
-			stop.add_line(line)
-			dc_metro.stops << stop
+  	if orange > 0
+  		lines << "Orange"
+  		new_station.orange_pos = orange
+  	end
+
+  	if blue > 0
+  		lines << "Blue"
+  		new_station.blue_pos = blue
+  	end
+
+  	if red > 0
+  		lines << "Red"
+  		new_station.red_pos = red
+  	end
+
+  	if green > 0
+  		lines << "Green"
+  		new_station.green_pos = green
+  	end
+
+  	if yellow > 0
+  		lines << "Yellow"
+  		new_station.yellow_pos = yellow
+  	end
+
+  	if silver > 0
+  		lines << "Silver"
+  		new_station.silver_pos = silver
+  	end
+
+		new_station.lines = lines
+  	dc_metro.add_stop(new_station)
+end
+
+dc_metro.add_line(Line.new("Orange Line", dc_metro.stops.select {|stop| stop.lines.include?("Orange")}.sort {|a,b| a.orange_pos <=> b.orange_pos}))
+dc_metro.add_line(Line.new("Blue Line", dc_metro.stops.select {|stop| stop.lines.include?("Blue")}.sort {|a,b| a.blue_pos <=> b.blue_pos}))
+dc_metro.add_line(Line.new("Red Line", dc_metro.stops.select {|stop| stop.lines.include?("Red")}.sort {|a,b| a.red_pos <=> b.red_pos}))
+dc_metro.add_line(Line.new("Green Line", dc_metro.stops.select {|stop| stop.lines.include?("Green")}.sort {|a,b| a.green_pos <=> b.green_pos}))
+dc_metro.add_line(Line.new("Yellow Line", dc_metro.stops.select {|stop| stop.lines.include?("Yellow")}.sort {|a,b| a.yellow_pos <=> b.yellow_pos}))
+dc_metro.add_line(Line.new("Silver Line", dc_metro.stops.select {|stop| stop.lines.include?("Silver")}.sort {|a,b| a.silver_pos <=> b.silver_pos}))
+
+# dc_metro.lines.each do |line|
+# 	puts "#{dc_metro.stop_by_line_pos(line, -1).name} (#{line.name})"
+# end
+
+dc_metro.lines.each do |line|
+	line.stops.each_with_index do |stop, i|
+		if i == 0
+			first = true
+		elsif line.stops[-1] == stop
+			last = true
+		end
+
+		case line.name
+			when "Orange Line"
+
+				line_pos = stop.orange_pos
+
+				if !first && !last
+					stop.connected << line.stops[i-1] # add previous station
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
+				elsif first
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
+				elsif last
+					stop.connected << line.stops[i-1] # add previous station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
+				end
+
+			when "Blue Line"
+
+				line_pos = stop.blue_pos
+
+				if !first && !last
+					stop.connected << line.stops[i-1] # add previous station
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
+				elsif first
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
+				elsif last
+					stop.connected << line.stops[i-1] # add previous station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
+				end
+
+			when "Red Line"
+
+				line_pos = stop.red_pos
+
+				if !first && !last
+					stop.connected << line.stops[i-1] # add previous station
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
+				elsif first
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
+				elsif last
+					stop.connected << line.stops[i-1] # add previous station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
+				end
+
+			when "Green Line"
+
+				line_pos = stop.green_pos
+
+				if !first && !last
+					stop.connected << line.stops[i-1] # add previous station
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
+				elsif first
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
+				elsif last
+					stop.connected << line.stops[i-1] # add previous station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
+				end
+
+			when "Yellow Line"
+
+				line_pos = stop.yellow_pos
+
+				if !first && !last
+					stop.connected << line.stops[i-1] # add previous station
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
+				elsif first
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
+				elsif last
+					stop.connected << line.stops[i-1] # add previous station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
+				end
+
+			when "Silver Line"
+
+				line_pos = stop.silver_pos
+
+				if !first && !last
+					stop.connected << line.stops[i-1] # add previous station
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
+				elsif first
+					stop.connected << line.stops[i+1] # add next station
+					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
+				elsif last
+					stop.connected << line.stops[i-1] # add previous station
+					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
+				end
 		end
 	end
 end
 
-# loop through line stops
-# look up object by name
-# add adjacent stops
-metro_lines.each do |line|
-	line.stops.each_with_index do |stop_name, position|
-		stop = dc_metro.stop_by_name(stop_name)
-		if position != 0
-			left = dc_metro.stop_by_name(line.stops[position-1])
-			stop.add_connected(left)
-		end
-		if position != line.stops.length - 1
-			right = dc_metro.stop_by_name(line.stops[position+1])		
-			stop.add_connected(right)
-		end
-	end
-end
+orig = dc_metro.stop_by_name("Clarendon")
+dest = dc_metro.stop_by_name("New Carrollton")
+
+distances = orig.connected.map {|c| c.distance_to(dest)}
+
+c_index = distances.index(distances.min)
+
+# this is the next stop we should take toward our destination
+puts orig.connected[c_index].name
+
+exit
 
 # model <-
 
