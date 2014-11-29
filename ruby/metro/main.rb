@@ -178,12 +178,8 @@ end
 orig = dc_metro.stop_by_name("Clarendon")
 dest = dc_metro.stop_by_name("New Carrollton")
 
-distances = orig.connected.map {|c| c.distance_to(dest)}
-
-c_index = distances.index(distances.min)
-
 # this is the next stop we should take toward our destination
-puts orig.connected[c_index].name
+puts orig.closest_connection_to(dest).name
 
 exit
 
