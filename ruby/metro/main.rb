@@ -72,101 +72,23 @@ dc_metro.lines.each do |line|
 
 		case line.name
 			when "Orange Line"
-
 				line_pos = stop.orange_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Blue Line"
-
 				line_pos = stop.blue_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Red Line"
-
 				line_pos = stop.red_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Green Line"
-
 				line_pos = stop.green_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Yellow Line"
-
 				line_pos = stop.yellow_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Silver Line"
 
 				line_pos = stop.silver_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
 		end
+
+		stop.connected << line.stops[i-1] if !first # add previous station
+		stop.connected << line.stops[i+1] if !last # add next station
+
 	end
 end
 # model <-
