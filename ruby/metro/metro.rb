@@ -24,6 +24,8 @@ class Metro
 	def stop_by_name(stop_name)
 		all_stop_names = @stops.map {|stop| stop.name}
 		index = all_stop_names.index(stop_name)
+		return nil if index == nil
+		
 		return @stops[index]
 	end
 

@@ -1,5 +1,5 @@
 class Trip
-	attr_reader :orig, :dest, :visited_stops, :final_path, :successful_paths
+	attr_reader :orig, :dest, :successful_paths
 
 	def initialize(orig, dest)
 		@orig = orig
@@ -13,46 +13,32 @@ class Trip
 	# don't go back to a stop in the current path
 
 	def map_paths(orig = @orig, dest = @dest, path = [])
+		# we have to duplicate each path array to its own object
+		# to ensure it isn't contaminated by another iteration
 		path = path.dup
 		path << orig
 
 		if orig == dest
-			# we made it
-			# puts "did it in #{path.length-1} stops"
 			if !@successful_paths.include?(path)
 				@successful_paths << path
 			end
-			# @successful_paths.uniq!
 		else
-			# not there yet
 			# get connections
 			connections = orig.connected
 			connections.each do |c|
 				# skip connections in our path and move history
 				next if path.include?(c)
+
+				# don't evaluate routes involving station's we've evaluated before
+				# we have to do this to limit the paths generated
 				if @moves.include?({from: orig, to: c})
+					# allow paths to repeat initial stops
 					next unless path.length < 5
 				end
 
 				@moves << {from: orig, to: c}
-				
-				# puts "#{orig.name} -> #{c.name}"
-
-				# iterate over each connection	
 				map_paths(c, dest, path)
 			end			
-		end
-	end
-
-	def shortest_path(orig, dest)
-		if orig.distance_to(dest) > 0
-			c = orig.closest_connection_to(dest)
-			return if @paths.include?(c)
-			# puts c.name
-			@paths << c
-			return shortest_path(c, dest)
-		else
-			return @paths
 		end
 	end
 end

@@ -10,18 +10,16 @@ dc_metro = Metro.new("DC Metro")
 CSV.read("DC_Metro_Stops.csv").each_with_index do |row, i|
 		next if i == 0 # skip headers
   	name = row[0].to_s
-  	lat = row[1].to_f
-  	lng = row[2].to_f
-  	orange = row[3].to_i
-  	blue = row[4].to_i
-  	red = row[5].to_i
-  	green = row[6].to_i
-  	yellow = row[7].to_i
-  	silver = row[8].to_i
+  	orange = row[1].to_i
+  	blue = row[2].to_i
+  	red = row[3].to_i
+  	green = row[4].to_i
+  	yellow = row[5].to_i
+  	silver = row[6].to_i
 
   	lines = []
 
-  	new_station = Station.new(name, lat, lng)
+  	new_station = Station.new(name)
 
   	if orange > 0
   		lines << "Orange"
@@ -63,10 +61,6 @@ dc_metro.add_line(Line.new("Red Line", dc_metro.stops.select {|stop| stop.lines.
 dc_metro.add_line(Line.new("Green Line", dc_metro.stops.select {|stop| stop.lines.include?("Green")}.sort {|a,b| a.green_pos <=> b.green_pos}))
 dc_metro.add_line(Line.new("Yellow Line", dc_metro.stops.select {|stop| stop.lines.include?("Yellow")}.sort {|a,b| a.yellow_pos <=> b.yellow_pos}))
 dc_metro.add_line(Line.new("Silver Line", dc_metro.stops.select {|stop| stop.lines.include?("Silver")}.sort {|a,b| a.silver_pos <=> b.silver_pos}))
-
-# dc_metro.lines.each do |line|
-# 	puts "#{dc_metro.stop_by_line_pos(line, -1).name} (#{line.name})"
-# end
 
 dc_metro.lines.each do |line|
 	line.stops.each_with_index do |stop, i|
@@ -214,6 +208,17 @@ while 1
 
 	point_a = dc_metro.stop_by_name(point_a_name)
 	point_b = dc_metro.stop_by_name(point_b_name)
+
+	if point_a == nil || point_b == nil
+		puts "Error: couldn't find #{point_a} or #{point_b}"
+		exit
+	elsif point_a == nil
+		puts "Error: couldn't find #{point_a}"
+		exit
+	elsif point_b == nil
+		puts "Error: couldn't find #{point_b}"
+		exit
+	end
 
 	trip = Trip.new(point_a, point_b)
 
