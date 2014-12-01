@@ -175,19 +175,6 @@ dc_metro.lines.each do |line|
 		end
 	end
 end
-
-orig = dc_metro.stop_by_name("West Falls Church")
-dest = dc_metro.stop_by_name("Judiciary Sq")
-
-trip = Trip.new(orig, dest)
-
-trip.map_paths
-trip.successful_paths.each do |path|
-	path_names = path.map {|station| station.name}
-	p path_names
-end
-
-exit
 # model <-
 
 def list_options(options)
@@ -211,11 +198,13 @@ end
 while 1
 	all_stop_names = dc_metro.stops.map { |stop| stop.name}.sort
 	puts "Origin:"
-	point_a_name = list_options(all_stop_names)[1]
+	# point_a_name = list_options(all_stop_names)[1]
+	point_a_name = gets.chomp
 	
 	puts "Destination:"
-	possible_destinations = all_stop_names.select {|stop| stop != point_a_name}
-	point_b_name = list_options(possible_destinations.sort)[1]
+	# possible_destinations = all_stop_names.select {|stop| stop != point_a_name}
+	# point_b_name = list_options(possible_destinations.sort)[1]
+	point_b_name = gets.chomp
 	
 	puts "You want to go from #{point_a_name} to #{point_b_name}? (y/n)"
 	if gets.chomp.downcase != "y"
@@ -226,9 +215,19 @@ while 1
 	point_a = dc_metro.stop_by_name(point_a_name)
 	point_b = dc_metro.stop_by_name(point_b_name)
 
-	stops = point_a.stops_to(dc_metro, point_b)
+	trip = Trip.new(point_a, point_b)
 
-	puts "Total stops: #{stops}"
+	trip.map_paths
+
+	path_stop_lengths = trip.successful_paths.map {|path| path.length}
+	min_stops = path_stop_lengths.min
+	min_index = path_stop_lengths.index(min_stops)
+	shortest_path = trip.successful_paths[min_index]
+
+	shortest_path_names = shortest_path.map {|station| station.name}
+
+	# p shortest_path_names
+	puts shortest_path_names
 
 	puts "Again? (y/n)"
 	gets.chomp.downcase == "y" ? next : exit

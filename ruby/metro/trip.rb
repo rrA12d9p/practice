@@ -19,8 +19,10 @@ class Trip
 		if orig == dest
 			# we made it
 			# puts "did it in #{path.length-1} stops"
-			@successful_paths = [path]
-			return
+			if !@successful_paths.include?(path)
+				@successful_paths << path
+			end
+			# @successful_paths.uniq!
 		else
 			# not there yet
 			# get connections
@@ -28,10 +30,14 @@ class Trip
 			connections.each do |c|
 				# skip connections in our path and move history
 				next if path.include?(c)
-				next if @moves.include?({from: orig, to: c})
+				if @moves.include?({from: orig, to: c})
+					next unless path.length < 5
+				end
 
 				@moves << {from: orig, to: c}
 				
+				# puts "#{orig.name} -> #{c.name}"
+
 				# iterate over each connection	
 				map_paths(c, dest, path)
 			end			
