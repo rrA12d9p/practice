@@ -146,6 +146,8 @@ while 1
 
 	trip.map_paths
 
+	puts "Tried #{trip.num_paths} paths"
+
 	path_stop_lengths = trip.successful_paths.map {|path| path.length}
 	min_stops = path_stop_lengths.min
 	min_index = path_stop_lengths.index(min_stops)
