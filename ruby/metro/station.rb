@@ -43,6 +43,10 @@ class Station
 		return @lines.length > 1
 	end
 
+	def common_lines(stop)
+		return @lines & stop.lines
+	end
+
 	def same_line?(stop)
 		common_lines = @lines & stop.lines
 		return common_lines == nil ? false : common_lines.length > 0

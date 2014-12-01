@@ -22,32 +22,32 @@ CSV.read("DC_Metro_Stops.csv").each_with_index do |row, i|
   	new_station = Station.new(name)
 
   	if orange > 0
-  		lines << "Orange"
+  		lines << "Orange Line"
   		new_station.orange_pos = orange
   	end
 
   	if blue > 0
-  		lines << "Blue"
+  		lines << "Blue Line"
   		new_station.blue_pos = blue
   	end
 
   	if red > 0
-  		lines << "Red"
+  		lines << "Red Line"
   		new_station.red_pos = red
   	end
 
   	if green > 0
-  		lines << "Green"
+  		lines << "Green Line"
   		new_station.green_pos = green
   	end
 
   	if yellow > 0
-  		lines << "Yellow"
+  		lines << "Yellow Line"
   		new_station.yellow_pos = yellow
   	end
 
   	if silver > 0
-  		lines << "Silver"
+  		lines << "Silver Line"
   		new_station.silver_pos = silver
   	end
 
@@ -72,101 +72,31 @@ dc_metro.lines.each do |line|
 
 		case line.name
 			when "Orange Line"
-
 				line_pos = stop.orange_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Blue Line"
-
 				line_pos = stop.blue_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Red Line"
-
 				line_pos = stop.red_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Green Line"
-
 				line_pos = stop.green_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Yellow Line"
-
 				line_pos = stop.yellow_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
-
 			when "Silver Line"
-
 				line_pos = stop.silver_pos
-
-				if !first && !last
-					stop.connected << line.stops[i-1] # add previous station
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}, After: #{line.stops[i+1].name}"
-				elsif first
-					stop.connected << line.stops[i+1] # add next station
-					# puts "Station: #{stop.name}, After: #{line.stops[i+1].name}"
-				elsif last
-					stop.connected << line.stops[i-1] # add previous station
-					# puts "Station: #{stop.name}, Before: #{line.stops[i-1].name}"
-				end
 		end
+
+		# if !first && !last
+		# 	stop.connected << line.stops[i-1] # add previous station
+		# 	stop.connected << line.stops[i+1] # add next station
+		# elsif first
+		# 	stop.connected << line.stops[i+1] # add next station
+		# elsif last
+		# 	stop.connected << line.stops[i-1] # add previous station
+		# end
+
+		stop.connected << line.stops[i-1] if !first
+		stop.connected << line.stops[i+1] if !last
+
 	end
 end
 # model <-
@@ -209,14 +139,14 @@ while 1
 	point_a = dc_metro.stop_by_name(point_a_name)
 	point_b = dc_metro.stop_by_name(point_b_name)
 
-	if point_a == nil || point_b == nil
-		puts "Error: couldn't find #{point_a} or #{point_b}"
+	if point_a == nil && point_b == nil
+		puts "Error: couldn't find \"#{point_a_name}\" or \"#{point_b_name}\""
 		exit
 	elsif point_a == nil
-		puts "Error: couldn't find #{point_a}"
+		puts "Error: couldn't find \"#{point_a_name}\""
 		exit
 	elsif point_b == nil
-		puts "Error: couldn't find #{point_b}"
+		puts "Error: couldn't find \"#{point_b_name}\""
 		exit
 	end
 
@@ -229,10 +159,18 @@ while 1
 	min_index = path_stop_lengths.index(min_stops)
 	shortest_path = trip.successful_paths[min_index]
 
-	shortest_path_names = shortest_path.map {|station| station.name}
+	# shortest_path_names = shortest_path.map {|station| station.name}
+	shortest_path_names = shortest_path.each_with_index.map do |station, i| 
+		num_s = "#{i + 1}."
+		chars = num_s.length
+		indent = 4 - chars
+		num_s + (" " * indent) + "#{station.name}"
+	end
 
 	# p shortest_path_names
 	puts shortest_path_names
+
+	puts "Total Stops: #{min_stops-1}"
 
 	puts "Again? (y/n)"
 	gets.chomp.downcase == "y" ? next : exit

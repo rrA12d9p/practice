@@ -25,11 +25,13 @@ class Metro
 		all_stop_names = @stops.map {|stop| stop.name}
 		index = all_stop_names.index(stop_name)
 		return nil if index == nil
-		
+
 		return @stops[index]
 	end
 
-
+	def line_by_name(line_name)
+		return @lines.select {|line| line.name == line_name}
+	end
 
 	# remove a line object from our lines array
 	def remove_line(line)
