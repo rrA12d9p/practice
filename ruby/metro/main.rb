@@ -176,24 +176,18 @@ dc_metro.lines.each do |line|
 	end
 end
 
-orig = dc_metro.stop_by_name("East Falls Church")
-dest = dc_metro.stop_by_name("Arlington Cemetery")
+orig = dc_metro.stop_by_name("West Falls Church")
+dest = dc_metro.stop_by_name("Judiciary Sq")
 
 trip = Trip.new(orig, dest)
 
-# shortest_path = trip.shortest_path(orig, dest)
-# path_stop_names = shortest_path.map {|stop| stop.name}
-# puts path_stop_names
-
-trip.map_paths(orig, dest)
-
+trip.map_paths
 trip.successful_paths.each do |path|
-	puts "#{path.length} stops"
-	puts "#{path.map{|station| station.name}}"
+	path_names = path.map {|station| station.name}
+	p path_names
 end
 
 exit
-
 # model <-
 
 def list_options(options)

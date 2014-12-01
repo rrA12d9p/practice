@@ -18,6 +18,10 @@ class Station
 		@silver_pos = 0
 	end
 
+	def is_connected_to?(station)
+		return connected.include?(station)
+	end
+
 	def closest_connection_to(dest)
 		distances = self.connected.map {|c| c.distance_to(dest)}
 		c_index = distances.index(distances.min)

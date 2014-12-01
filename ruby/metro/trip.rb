@@ -4,33 +4,37 @@ class Trip
 	def initialize(orig, dest)
 		@orig = orig
 		@dest = dest
-		@visited_stops = []
-		@final_path = []
+		@moves = []
 		@successful_paths = []
 	end
 
-	def map_paths(orig, dest)
-		puts @final_path.length
+	# check every connection of every connection
+	# if we end up at our destination, add the path we took to our successful paths array
+	# don't go back to a stop in the current path
+
+	def map_paths(orig = @orig, dest = @dest, path = [])
+		path = path.dup
+		path << orig
+
 		if orig == dest
-			puts "********"
-			@successful_paths << @final_path
-			return @final_path
-		end	
-		connections = orig.connected
-		connections.each do |connection|
-			if @visited_stops.include?(connection)
-				last_try = connection == connections[-1]
-				if last_try
-					puts "~~~~~~" 
-					@final_path = []
-				end
-				next #don't retry this connection
-			else
-				puts "#{orig.name} -> #{connection.name}"
-				@visited_stops << connection
-				@final_path << connection
-			end
-			map_paths(connection, dest)
+			# we made it
+			# puts "did it in #{path.length-1} stops"
+			@successful_paths = [path]
+			return
+		else
+			# not there yet
+			# get connections
+			connections = orig.connected
+			connections.each do |c|
+				# skip connections in our path and move history
+				next if path.include?(c)
+				next if @moves.include?({from: orig, to: c})
+
+				@moves << {from: orig, to: c}
+				
+				# iterate over each connection	
+				map_paths(c, dest, path)
+			end			
 		end
 	end
 
