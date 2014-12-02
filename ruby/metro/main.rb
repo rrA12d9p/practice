@@ -86,8 +86,8 @@ dc_metro.lines.each do |line|
 				line_pos = stop.silver_pos
 		end
 
-		stop.connected << line.stops[i-1] if !first # add previous station
-		stop.connected << line.stops[i+1] if !last # add next station
+		stop.add_connected(line.stops[i-1]) if !first # add previous station
+		stop.add_connected(line.stops[i+1]) if !last # add next station
 
 	end
 end
@@ -146,7 +146,7 @@ while 1
 
 	trip.map_paths
 
-	puts "Tried #{trip.num_paths} paths"
+	# puts "Tried #{trip.num_paths} paths"
 
 	path_stop_lengths = trip.successful_paths.map {|path| path.length}
 	min_stops = path_stop_lengths.min
@@ -155,8 +155,17 @@ while 1
 
 	shortest_path_names = shortest_path.map {|station| station.name}
 
-	# p shortest_path_names
-	puts shortest_path_names
+	puts "***************************"
+	puts "Possible paths: "
+	trip.successful_paths.each do |path|
+		p path.map {|station| station.name}
+		puts "\n"
+	end
+	puts "***************************"
+	puts "Shortest path (#{min_stops} stops): "
+
+	p shortest_path_names
+	puts "***************************"
 
 	puts "Again? (y/n)"
 	gets.chomp.downcase == "y" ? next : exit

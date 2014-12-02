@@ -1,6 +1,6 @@
 class Station
-	attr_accessor :name, :lines, :connected, :lat, :lng
-	attr_accessor :orange_pos, :blue_pos, :red_pos, :green_pos, :yellow_pos, :silver_pos
+	attr_reader :name, :lines, :connected
+	attr_accessor :lines, :orange_pos, :blue_pos, :red_pos, :green_pos, :yellow_pos, :silver_pos
 
 	def initialize(name)
 		@name = name
@@ -40,7 +40,7 @@ class Station
 	end
 
 	def transfer_station?
-		return @lines.length > 1
+		return @connected.length > 2
 	end
 
 	def same_line?(stop)
