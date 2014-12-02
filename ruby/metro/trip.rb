@@ -14,7 +14,6 @@ class Trip
 
 	# check every connection of every connection
 	# if we end up at our destination, add the path we took to our successful paths array
-	# don't go back to a stop in the current path
 	def map_paths(orig = @orig, dest = @dest, path = [])
 
 		# we have to duplicate each path array to its own object
