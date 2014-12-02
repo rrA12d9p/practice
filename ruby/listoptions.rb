@@ -1,20 +1,19 @@
-def listOptions(options)
+def list_options(options)
+	max_margin = options.length.to_s.length
 	begin
 		i = 1
-		aOptions = options.split("|")
-		aOptions.each do |option|
-			puts "#{i}. #{option}"
+		options.each do |option|
+			l = i.to_s.length
+			m = max_margin + 1 - l
+			puts "#{i}.#{" " * m}#{option}"
 			i += 1
 		end
 		
 		answer = gets.chomp.to_i
 
 		if answer < 1 || answer > i - 1
-			puts "Sorry, that option is unavailable."
+			puts "Sorry, please enter a valid number (1-#{i})."
 		end
 	end while answer < 1 || answer > i - 1
-	return [answer, aOptions[answer - 1]]
+	return [answer, options[answer - 1]]
 end
-
-choice = listOptions("option 1|option 2|option 3")
-puts "You picked #{choice[1]}"

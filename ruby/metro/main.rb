@@ -96,17 +96,20 @@ end
 # model <-
 
 def list_options(options)
+	max_margin = options.length.to_s.length
 	begin
 		i = 1
 		options.each do |option|
-			puts "#{i}.	#{option}"
+			l = i.to_s.length
+			m = max_margin + 1 - l
+			puts "#{i}.#{" " * m}#{option}"
 			i += 1
 		end
 		
 		answer = gets.chomp.to_i
 
 		if answer < 1 || answer > i - 1
-			puts "Sorry, that option is unavailable."
+			puts "Sorry, please enter a valid number (1-#{i-1})."
 		end
 	end while answer < 1 || answer > i - 1
 	return [answer, options[answer - 1]]
@@ -123,32 +126,44 @@ end
 while 1
 	all_stop_names = dc_metro.stops.map { |stop| stop.name}.sort
 	puts "Origin:"
-	point_a_name = gets.chomp
+	point_a_name = gets.chomp.titlecase
 	point_a = dc_metro.stop_by_name(point_a_name)
 
 	if point_a == nil
 		closest_matches = closest_matches(point_a_name.titlecase, all_stop_names, 10)
-		puts "Error: couldn't find #{point_a_name}. Please select a number:"
-		selection = list_options(closest_matches)
-		point_a_name = selection[1]
-		point_a = dc_metro.stop_by_name(point_a_name)
+		closest_match = closest_matches[0]
+		if Levenshtein.distance(point_a_name, closest_match) <= 3
+			point_a_name = closest_matches[0]
+			point_a = dc_metro.stop_by_name(point_a_name)
+		else
+			puts "Error: couldn't find \"#{point_a_name}\". Please select a number:"
+			selection = list_options(closest_matches)
+			point_a_name = selection[1]
+			point_a = dc_metro.stop_by_name(point_a_name)
+		end
 	end
 	
 	puts "Destination:"
-	point_b_name = gets.chomp
+	point_b_name = gets.chomp.titlecase
 	point_b = dc_metro.stop_by_name(point_b_name)
 
 	if point_b == nil
 		closest_matches = closest_matches(point_b_name.titlecase, all_stop_names, 10)
-		puts "Error: couldn't find #{point_b_name}. Please select a number:"
-		selection = list_options(closest_matches)
-		point_b_name = selection[1]
-		point_b = dc_metro.stop_by_name(point_b_name)
+		closest_match = closest_matches[0]
+		if Levenshtein.distance(point_b_name, closest_match) <= 3
+			point_b_name = closest_matches[0]
+			point_b = dc_metro.stop_by_name(point_b_name)
+		else
+			puts "Error: couldn't find \"#{point_b_name}\". Please select a number:"
+			selection = list_options(closest_matches)
+			point_b_name = selection[1]
+			point_b = dc_metro.stop_by_name(point_a_name)
+		end
 	end
 	
 	puts "You want to go from #{point_a_name} to #{point_b_name}? (y/n)"
 	if gets.chomp.downcase != "y"
-		puts "Try again?"
+		puts "Try again? (y/n)"
 		gets.chomp.downcase == "y" ? next : exit
 	end
 
