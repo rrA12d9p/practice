@@ -1,8 +1,10 @@
 require 'csv'
+require_relative 'string.rb'
 require_relative 'metro.rb'
 require_relative 'line.rb'
 require_relative 'station.rb'
 require_relative 'trip.rb'
+require_relative 'levenshtein.rb'
 
 # model	->
 dc_metro = Metro.new("DC Metro")
@@ -110,17 +112,39 @@ def list_options(options)
 	return [answer, options[answer - 1]]
 end
 
+def closest_matches(s, s_options, num_matches)
+	levenshtein_hash = Levenshtein.create_hash(s, s_options)
+	best_match = levenshtein_hash.sort_by {|k,v| v}
+	best_match_names = best_match.map {|k,v| k.to_s}
+	return best_match_names.slice(0,num_matches)
+end
+
 # Main
 while 1
 	all_stop_names = dc_metro.stops.map { |stop| stop.name}.sort
 	puts "Origin:"
-	# point_a_name = list_options(all_stop_names)[1]
 	point_a_name = gets.chomp
+	point_a = dc_metro.stop_by_name(point_a_name)
+
+	if point_a == nil
+		closest_matches = closest_matches(point_a_name.titlecase, all_stop_names, 10)
+		puts "Error: couldn't find #{point_a_name}. Please select a number:"
+		selection = list_options(closest_matches)
+		point_a_name = selection[1]
+		point_a = dc_metro.stop_by_name(point_a_name)
+	end
 	
 	puts "Destination:"
-	# possible_destinations = all_stop_names.select {|stop| stop != point_a_name}
-	# point_b_name = list_options(possible_destinations.sort)[1]
 	point_b_name = gets.chomp
+	point_b = dc_metro.stop_by_name(point_b_name)
+
+	if point_b == nil
+		closest_matches = closest_matches(point_b_name.titlecase, all_stop_names, 10)
+		puts "Error: couldn't find #{point_b_name}. Please select a number:"
+		selection = list_options(closest_matches)
+		point_b_name = selection[1]
+		point_b = dc_metro.stop_by_name(point_b_name)
+	end
 	
 	puts "You want to go from #{point_a_name} to #{point_b_name}? (y/n)"
 	if gets.chomp.downcase != "y"
@@ -128,19 +152,7 @@ while 1
 		gets.chomp.downcase == "y" ? next : exit
 	end
 
-	point_a = dc_metro.stop_by_name(point_a_name)
 	point_b = dc_metro.stop_by_name(point_b_name)
-
-	if point_a == nil || point_b == nil
-		puts "Error: couldn't find #{point_a} or #{point_b}"
-		exit
-	elsif point_a == nil
-		puts "Error: couldn't find #{point_a}"
-		exit
-	elsif point_b == nil
-		puts "Error: couldn't find #{point_b}"
-		exit
-	end
 
 	trip = Trip.new(point_a, point_b)
 

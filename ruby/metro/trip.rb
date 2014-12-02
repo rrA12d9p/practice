@@ -32,8 +32,7 @@ class Trip
 			# remove previous stops from possible connections list
 			connections = connections - path
 			connections.each do |c|
-
-			map_paths(c, dest, path)
+				map_paths(c, dest, path)
 			end
 		end
 	end
