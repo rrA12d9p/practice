@@ -6,4 +6,4 @@ fizzBuzz = (num) ->
 
 	return fizzBuzz(num + 1) if (num < 100);
 
-fizzBuzz(1);
+fizzBuzz(1); 
